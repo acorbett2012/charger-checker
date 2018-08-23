@@ -1,73 +1,22 @@
-/**
- * Created by ujad on 5/31/2018.
- */
-angular.module("Charger.app", [])
+<!DOCTYPE html>
+<html lang="en" data-ng-app="Charger.app">
+<script type="text/javascript" src="https://static.vgcontent.info/web/common/jquery/2.1.4/jquery.js"></script>
+<script type="text/javascript" src="https://static.vgcontent.info/web/common/angularjs/1.4.7/angular.js"></script>
 
-    .filter('TrueFalseToAvailableUnavailable', function() {
-        return function(input) {
-            input = input || '';
-            if (input == 'Loading'){
-                out = 'Loading';
-                return out;
-            }
-            var out = '';
-            if (input == false) {
-                out = 'NOT Available'
-            } else {
-                out = 'Available'
-            }
-            return out;
-        };
-    })
+<script type="text/javascript" src="lib/ChargerCtrl.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <title>Charger Check</title>
 
-    .controller("ChargerController", function ($scope, $http) {
-        var self = this;
-        $scope.chargerStatuses = [];
-        $scope.chargerStatus0 = 'Loading';
-        $scope.chargerStatus1 = 'Loading';
-        $scope.checkCount = 0;
-        $scope.checkDate = new Date();
-
-        var loopCheck = function () {
-            $scope.checkCount++;
-            $http({
-                method: 'POST',
-                url: 'https://cors-anywhere.herokuapp.com/https://network.semaconnect.com/get_data.php',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                data: 'action=mapLocationDetails&div_id=1499&user_id=35282'
-            }).success(function (response) {
-                var stations = response.aaData.stations;
-                for(var x = 0; x<stations.length; x++) {
-                    if (stations[x].status == "Available") {
-                        if($scope.chargerStatuses[x]){
-                            if ($scope.chargerStatuses[x].stationAvailable === false) {
-                                alert('Station ' + x + ' Is now available' + new Date());
-                            }
-                        }
-                        $scope.chargerStatuses[x] = {stationNumber: x , stationAvailable: true}
-                    } else {
-                        $scope.chargerStatuses[x] = {stationNumber: x , stationAvailable: false}
-                    }
-                }
-                //if (stations[0].status == "Available") {
-                //    if ($scope.chargerStatus0 === false) {
-                //        alert('Station 0 Is now available');
-                //    }
-                //    $scope.chargerStatus0 = true;
-                //} else {
-                //    $scope.chargerStatus0 = false;
-                //}
-                //if (stations[1].status == "Available") {
-                //    if ($scope.chargerStatus1 === false) {
-                //        alert('Station 1 Is now available');
-                //    }
-                //    $scope.chargerStatus1 = true;
-                //} else {
-                //    $scope.chargerStatus1 = false;
-                //}
-            });
-
-        };
-        loopCheck();
-        setInterval(loopCheck, 60000);
-    });
+</head>
+<body ng-controller = "ChargerController" >
+    <h1>Charger Status:</h1>
+    <div ng-repeat="charger in chargerStatuses">
+        <h2>Stall {{charger.stationNumber }} :</h2>
+        <p>{{charger.stationAvailable | TrueFalseToAvailableUnavailable}}</p>
+    </div>
+    <br/>
+    <h2>Charger has been checked this many times since refresh :</h2>
+    <p>{{checkCount}}</p>
+</body>
+</html>
